@@ -48,4 +48,10 @@ export class StudentService {
 
     return students
   }
+
+  async executeDelete(id: string): Promise<void> {
+    const repository = AppDataSource.getRepository(Student)
+
+    await repository.delete(id)
+  }
 }

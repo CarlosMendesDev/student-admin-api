@@ -31,4 +31,22 @@ export default class StudentController {
 
     return response.json(students)
   }
+
+  async handleDelete(request: Request, response: Response) {
+    const { id } = request.params
+
+    if (!id) {
+      return response.status(400).json({ error: 'ID não fornecido' })
+    }
+
+    const service = new StudentService()
+
+    try {
+      await service.executeDelete(id)
+
+      return response.status(204).send()
+    } catch (error) {
+      return response.status(500).json({ error: 'Não foi possível excluir o estudante' })
+    }
+  }
 }
