@@ -49,4 +49,27 @@ export default class StudentController {
       return response.status(500).json({ error: 'Não foi possível excluir o estudante' })
     }
   }
+
+  async handleUpdate(request: Request, response: Response) {
+    const { id } = request.params
+    const { ra, name, email, cpf } = request.body
+
+    if (!id) {
+      return response.status(400).json({ error: 'ID não fornecido' })
+    }
+
+    const service = new StudentService()
+
+    try {
+      const updatedStudent = await service.executeUpdate(id, { ra, name, email, cpf })
+
+      if (!updatedStudent) {
+        return response.status(404).json({ error: 'Estudante não encontrado' })
+      }
+
+      return response.json(updatedStudent)
+    } catch (error) {
+      return response.status(500).json({ error: 'Não foi possível atualizar o estudante' })
+    }
+  }
 }

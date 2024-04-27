@@ -54,4 +54,17 @@ export class StudentService {
 
     await repository.delete(id)
   }
+
+  async executeUpdate(id: string, data: Partial<StudentProps>): Promise<Student | null> {
+    const repository = AppDataSource.getRepository(Student)
+
+    try {
+      const student = await repository.findOneOrFail({ where: { id } })
+      const updatedStudent = await repository.save({ ...student, ...data })
+
+      return updatedStudent
+    } catch (error) {
+      return null
+    }
+  }
 }
