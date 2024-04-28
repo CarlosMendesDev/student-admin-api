@@ -1,5 +1,6 @@
 import { Request, Response } from 'express'
 import { StudentService } from '../services/StudentService'
+import { QueryFailedError } from 'typeorm'
 
 export default class StudentController {
   async handleCreate(request: Request, response: Response) {
@@ -16,6 +17,10 @@ export default class StudentController {
 
       return response.json(result)
     } catch (error) {
+      if (error.status === 409) {
+        return response.status(error.status).json({ error: 'Duplicate data.' })
+      }
+
       if (error.status && error.message) return response.status(error.status).json({ error: error.message })
 
       return response.status(500).json({ error: 'Failed to create student.' })
@@ -59,16 +64,16 @@ export default class StudentController {
 
   async handleUpdate(request: Request, response: Response) {
     const { id } = request.params
-    const { ra, name, email, cpf } = request.body
+    const { name, email } = request.body
 
     try {
-      if (!ra && !name && !email && !cpf) {
-        throw { status: 422, message: 'At least one parameter is required: {ra}, {name}, {email}, or {cpf}' }
+      if (!name && !email) {
+        throw { status: 422, message: 'At least one parameter is required: {name} or {email}' }
       }
 
       const service = new StudentService()
 
-      const updatedStudent = await service.executeUpdate(id, { ra, name, email, cpf })
+      const updatedStudent = await service.executeUpdate(id, { name, email })
 
       if (!updatedStudent) {
         throw { status: 404, message: 'Student not found' }
@@ -76,6 +81,10 @@ export default class StudentController {
 
       return response.json(updatedStudent)
     } catch (error) {
+      if (error.status === 409) {
+        return response.status(error.status).json({ error: 'Duplicate data.' })
+      }
+
       if (error.status && error.message) return response.status(error.status).json({ error: error.message })
 
       return response.status(500).json({ error: 'Failed to update student' })

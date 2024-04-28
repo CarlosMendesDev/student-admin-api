@@ -20,7 +20,11 @@ export class StudentService {
 
       return student
     } catch (error) {
-      return error
+      if (error instanceof QueryFailedError) {
+        throw { status: 409 }
+      }
+
+      throw error
     }
   }
 
@@ -43,7 +47,7 @@ export class StudentService {
 
       return students
     } catch (error) {
-      return error
+      throw error
     }
   }
 
@@ -53,7 +57,7 @@ export class StudentService {
     try {
       await repository.delete(id)
     } catch (error) {
-      return error
+      throw error
     }
   }
 
@@ -67,7 +71,11 @@ export class StudentService {
 
       return updatedStudent
     } catch (error) {
-      return error
+      if (error instanceof QueryFailedError) {
+        throw { status: 409 }
+      }
+
+      throw error
     }
   }
 }
