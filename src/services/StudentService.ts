@@ -1,7 +1,6 @@
 import Student from '../entities/Student'
 import { AppDataSource } from '../database/dataSource'
 import { FindManyOptions, ILike, QueryFailedError } from 'typeorm'
-import { getUniqueConstraintErrorMessage } from '../utils/getUniqueConstraintErrorMessage'
 
 export type StudentProps = {
   ra: string
@@ -21,12 +20,7 @@ export class StudentService {
 
       return student
     } catch (error) {
-      if (error instanceof QueryFailedError && error.message.includes('duplicate key value')) {
-        const errorMessage = getUniqueConstraintErrorMessage(error)
-        throw new Error(errorMessage)
-      }
-
-      throw error
+      return error
     }
   }
 
@@ -36,23 +30,31 @@ export class StudentService {
     const findOptions: FindManyOptions<Student> = {}
 
     if (filters) {
-        findOptions.where = {}
+      findOptions.where = {}
 
-        if (filters.name) findOptions.where.name = ILike(`%${filters.name}%`)
-        if (filters.email) findOptions.where.email = ILike(`%${filters.email}%`)
-        if (filters.cpf) findOptions.where.cpf = ILike(`%${filters.cpf}%`)
-        if (filters.ra) findOptions.where.ra = ILike(`%${filters.ra}%`)
+      if (filters.name) findOptions.where.name = ILike(`%${filters.name}%`)
+      if (filters.email) findOptions.where.email = ILike(`%${filters.email}%`)
+      if (filters.cpf) findOptions.where.cpf = ILike(`%${filters.cpf}%`)
+      if (filters.ra) findOptions.where.ra = ILike(`%${filters.ra}%`)
     }
 
-    const students = await repository.find(findOptions)
+    try {
+      const students = await repository.find(findOptions)
 
-    return students
+      return students
+    } catch (error) {
+      return error
+    }
   }
 
   async executeDelete(id: string): Promise<void> {
     const repository = AppDataSource.getRepository(Student)
 
-    await repository.delete(id)
+    try {
+      await repository.delete(id)
+    } catch (error) {
+      return error
+    }
   }
 
   async executeUpdate(id: string, data: Partial<StudentProps>): Promise<Student | null> {
@@ -60,11 +62,12 @@ export class StudentService {
 
     try {
       const student = await repository.findOneOrFail({ where: { id } })
+
       const updatedStudent = await repository.save({ ...student, ...data })
 
       return updatedStudent
     } catch (error) {
-      return null
+      return error
     }
   }
 }

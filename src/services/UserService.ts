@@ -12,13 +12,17 @@ export class UserService {
   async executeCreate({ name, username, password }: UserProps): Promise<User> {
     const repository = AppDataSource.getRepository(User)
 
-    const hashedPassword = await bcrypt.hash(password, 10)
+    try {
+      const hashedPassword = await bcrypt.hash(password, 10)
 
-    const user = repository.create({ name, username, password: hashedPassword })
+      const user = repository.create({ name, username, password: hashedPassword })
 
-    await repository.save(user)
+      await repository.save(user)
 
-    return user
+      return user
+    } catch (error) {
+      return error
+    }
   }
 
   async findUserByUsername(username: string): Promise<User | undefined> {

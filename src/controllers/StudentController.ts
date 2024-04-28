@@ -5,20 +5,26 @@ export default class StudentController {
   async handleCreate(request: Request, response: Response) {
     const { ra, name, email, cpf } = request.body
 
-    const service = new StudentService()
-
     try {
+      if (!ra || !name || !email || !cpf) {
+        throw { status: 422, message: 'Missing parameters: {ra}, {name}, {email}, and {cpf} are required' }
+      }
+
+      const service = new StudentService()
+
       const result = await service.executeCreate({ ra, name, email, cpf })
 
       return response.json(result)
     } catch (error) {
-      return response.status(400).json(error?.message)
+      if (error.status && error.message) return response.status(error.status).json({ error: error.message })
+
+      return response.status(500).json({ error: 'Failed to create student.' })
     }
   }
 
   async handleGetAll(request: Request, response: Response) {
     const { name, email, cpf, ra } = request.query
-    
+
     const filters = {
       name: name ? String(name) : undefined,
       email: email ? String(email) : undefined,
@@ -26,27 +32,28 @@ export default class StudentController {
       ra: ra ? String(ra) : undefined
     }
 
-    const service = new StudentService()
-    const students = await service.executeGetAll(filters)
+    try {
+      const service = new StudentService()
 
-    return response.json(students)
+      const students = await service.executeGetAll(filters)
+
+      return response.json(students)
+    } catch (error) {
+      return response.status(500).json({ error: 'Failed to search students.' })
+    }
   }
 
   async handleDelete(request: Request, response: Response) {
     const { id } = request.params
 
-    if (!id) {
-      return response.status(400).json({ error: 'ID não fornecido' })
-    }
-
-    const service = new StudentService()
-
     try {
+      const service = new StudentService()
+
       await service.executeDelete(id)
 
       return response.status(204).send()
     } catch (error) {
-      return response.status(500).json({ error: 'Não foi possível excluir o estudante' })
+      response.status(500).json({ error: 'Failed to delete student' })
     }
   }
 
@@ -54,22 +61,24 @@ export default class StudentController {
     const { id } = request.params
     const { ra, name, email, cpf } = request.body
 
-    if (!id) {
-      return response.status(400).json({ error: 'ID não fornecido' })
-    }
-
-    const service = new StudentService()
-
     try {
+      if (!ra && !name && !email && !cpf) {
+        throw { status: 422, message: 'At least one parameter is required: {ra}, {name}, {email}, or {cpf}' }
+      }
+
+      const service = new StudentService()
+
       const updatedStudent = await service.executeUpdate(id, { ra, name, email, cpf })
 
       if (!updatedStudent) {
-        return response.status(404).json({ error: 'Estudante não encontrado' })
+        throw { status: 404, message: 'Student not found' }
       }
 
       return response.json(updatedStudent)
     } catch (error) {
-      return response.status(500).json({ error: 'Não foi possível atualizar o estudante' })
+      if (error.status && error.message) return response.status(error.status).json({ error: error.message })
+
+      return response.status(500).json({ error: 'Failed to update student' })
     }
   }
 }
