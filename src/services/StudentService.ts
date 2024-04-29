@@ -28,18 +28,26 @@ export class StudentService {
     }
   }
 
-  async executeGetAll(filters?: Partial<StudentProps>): Promise<Student[]> {
+  async executeGetAll(search?: string): Promise<Student[]> {
     const repository = AppDataSource.getRepository(Student)
 
     const findOptions: FindManyOptions<Student> = {}
 
-    if (filters) {
-      findOptions.where = {}
-
-      if (filters.name) findOptions.where.name = ILike(`%${filters.name}%`)
-      if (filters.email) findOptions.where.email = ILike(`%${filters.email}%`)
-      if (filters.cpf) findOptions.where.cpf = ILike(`%${filters.cpf}%`)
-      if (filters.ra) findOptions.where.ra = ILike(`%${filters.ra}%`)
+    if (search) {
+      findOptions.where = [
+        {
+          name: ILike(`%${search}%`)
+        },
+        {
+          email: ILike(`%${search}%`)
+        },
+        {
+          cpf: ILike(`%${search}%`)
+        },
+        {
+          ra: ILike(`%${search}%`)
+        }
+      ]
     }
 
     try {
