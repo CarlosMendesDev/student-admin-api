@@ -9,34 +9,6 @@ A API criada é uma solução para gerenciar matrículas de alunos em turmas onl
 - Typescript
 - TypeORM (postgres)
 
-## Rodando localmente
-
-Clone o projeto
-
-```bash
-  git clone git@github.com:CarlosMendesDev/student-admin-api.git
-```
-
-Entre no diretório do projeto
-
-```bash
-  cd student-admin-api
-```
-
-Instale as dependências
-
-```bash
-  yarn
-```
-
-Preencha todas as variáveis de ambiente que estão no arquivo de exemplo para o .env
-
-Inicie o servidor
-
-```bash
-  yarn dev
-```
-
 ## Motivo da arquitetura
 
 Escolhi usar a arquitetura de entities, controller e service porque ela deixa tudo mais organizado. Assim, consigo separar o que cada parte do código faz de forma bem clara. Isso facilita na hora de mexer no código, adicionar novas coisas e até reutilizar pedaços dele em outros lugares. Além disso, essa arquitetura é boa para testar e escalar a aplicação. Resumindo, é uma escolha que ajuda a deixar o código mais fácil de entender e mexer.
